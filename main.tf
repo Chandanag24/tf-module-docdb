@@ -1,47 +1,31 @@
-#resource "aws_docdb_subnet_group" "main" {
-#  name       = "${local.name_prefix}-subnet-group"
-#  subnet_ids = var.subnet_ids
-#  tags        = merge(local.tags, { Name = "${local.name_prefix}-subnet-group" })
-#}
-#
-#resource "aws_docdb_cluster" "docdb" {
-#  cluster_identifier      = "my-docdb-cluster"
-#  engine                  = "docdb"
-#  master_username         = "foo"
-#  master_password         = "mustbeeightchars"
-#  backup_retention_period = 5
-#  preferred_backup_window = "07:00-09:00"
-#  skip_final_snapshot     = true
-#}
-
 resource "aws_docdb_subnet_group" "main" {
   name       = "${local.name_prefix}-subnet-group"
   subnet_ids = var.subnet_ids
   tags       = merge(local.tags, { Name = "${local.name_prefix}-subnet-group" })
 }
 
-#resource "aws_security_group" "main" {
-#  name        = "${local.name_prefix}-sg"
-#  description = "${local.name_prefix}-sg"
-#  vpc_id      = var.vpc_id
-#  tags        = merge(local.tags, { Name = "${local.name_prefix}-sg" })
+resource "aws_security_group" "main" {
+  name        = "${local.name_prefix}-sg"
+  description = "${local.name_prefix}-sg"
+  vpc_id      = var.vpc_id
+  tags        = merge(local.tags, { Name = "${local.name_prefix}-sg" })
 
-#  ingress {
-#    description = "DOCDB"
-#    from_port   = 27017
-#    to_port     = 27017
-#    protocol    = "tcp"
-#    cidr_blocks = var.sg_ingress_cidr
-#  }
-#
-#  egress {
-#    from_port        = 0
-#    to_port          = 0
-#    protocol         = "-1"
-#    cidr_blocks      = ["0.0.0.0/0"]
-#    ipv6_cidr_blocks = ["::/0"]
-#  }
-#}
+  ingress {
+    description = "DOCDB"
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = var.sg_ingress_cidr
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
 
 resource "aws_docdb_cluster_parameter_group" "main" {
   family      = var.engine_family
@@ -64,14 +48,12 @@ resource "aws_docdb_cluster" "main" {
   db_cluster_parameter_group_name = aws_docdb_cluster_parameter_group.main.name
   tags                            = merge(local.tags, { Name = "${local.name_prefix}-cluster" })
   engine_version                  = var.engine_version
-  storage_encrypted               = true
-  kms_key_id                      = var.kms_key_id
 }
 
 
-resource "aws_docdb_cluster_instance" "main" {
-  count              = var.instance_count
-  identifier         = "${local.name_prefix}-cluster-instance-${count.index + 1}"
-  cluster_identifier = aws_docdb_cluster.main.id
-  instance_class     = var.instance_class
-}
+#resource "aws_docdb_cluster_instance" "main" {
+#  count              = var.instance_count
+#  identifier         = "${local.name_prefix}-cluster-instance-${count.index + 1}"
+#  cluster_identifier = aws_docdb_cluster.main.id
+#  instance_class     = var.instance_class
+#}
